@@ -8,6 +8,7 @@ export class App extends BaseApp {
     super();
     this.initMiddleware();
     this.initControllers();
+    this.handleError();
   }
   initMiddleware() {
     this.app.use(bodyParser.json());
@@ -17,6 +18,16 @@ export class App extends BaseApp {
   initControllers() {
     this.controllers.forEach(c => this.app.use("", c.router));
   }
+
+  handleError() {
+    this.app.use((req, res, next) => {
+      return res.status(404).send({ message: req.url + " not found." });
+    });
+    this.app.use(function(err, req, res, next) {
+      return res.status(500).send({ error: err });
+    });
+  }
+
   listen(port: number) {
     this.port = port;
     this.app.listen(this.port, () => {
